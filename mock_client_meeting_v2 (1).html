@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock Client Meeting 92 Programme</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f4f3ef;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    .container { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 1rem; }
+    .header-card {
+      background: #fff;
+      border: 1px solid #e0ddd6;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 0.6rem;
+    }
+    .tag-blue { background: #dbeafe; color: #1d4ed8; }
+    .tag-red { background: #fee2e2; color: #b91c1c; }
+    .tag-green { background: #d1fae5; color: #065f46; }
+    h1 { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 0.3rem; }
+    .meta { font-size: 13px; color: #777; }
+    .scenario-card {
+      background: #fff;
+      border: 1px solid #e0ddd6;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #999; text-transform: uppercase; margin-bottom: 0.6rem; }
+    .scenario-text { font-size: 14px; line-height: 1.75; color: #2a2a2a; border-left: 3px solid #3b82f6; padding-left: 0.9rem; }
+    .note { font-size: 13px; color: #666; margin-top: 0.75rem; padding-left: 0.75rem; border-left: 2px solid #d1d5db; line-height: 1.6; }
+    .roles-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .role-card { background: #fff; border: 1px solid #e0ddd6; border-radius: 10px; padding: 1rem 1.25rem; }
+    .role-title { font-size: 13px; font-weight: 600; color: #111; margin: 0.4rem 0 0.3rem; }
+    .role-desc { font-size: 13px; color: #555; line-height: 1.6; }
+    .chat-card { background: #fff; border: 1px solid #e0ddd6; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .chat-topbar { background: #f8f7f4; border-bottom: 1px solid #e0ddd6; padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+    .chat-topbar-left { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #fee2e2; color: #b91c1c; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+    .chat-name { font-size: 14px; font-weight: 600; color: #111; }
+    .chat-role { font-size: 12px; color: #888; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 5px; }
+    .status-text { font-size: 12px; color: #555; }
+    .messages { flex: 1; min-height: 340px; max-height: 420px; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; scroll-behavior: smooth; }
+    .msg { display: flex; flex-direction: column; max-width: 78%; }
+    .msg.client { align-self: flex-start; }
+    .msg.user { align-self: flex-end; }
+    .msg-label { font-size: 11px; color: #aaa; margin-bottom: 3px; font-weight: 500; }
+    .msg.user .msg-label { text-align: right; }
+    .bubble { padding: 0.7rem 1rem; border-radius: 10px; font-size: 14px; line-height: 1.65; }
+    .msg.client .bubble { background: #f1f0ec; color: #1a1a1a; border-bottom-left-radius: 3px; }
+    .msg.user .bubble { background: #1d4ed8; color: #fff; border-bottom-right-radius: 3px; }
+    .typing { align-self: flex-start; font-size: 13px; color: #999; font-style: italic; display: none; padding: 0.25rem 0; }
+    .input-row { border-top: 1px solid #e0ddd6; padding: 1rem 1.25rem; display: flex; gap: 0.75rem; align-items: flex-end; background: #fafaf8; }
+    textarea { flex: 1; resize: none; border: 1px solid #d1d5db; border-radius: 8px; padding: 0.65rem 0.9rem; font-size: 14px; font-family: inherit; color: #1a1a1a; background: #fff; min-height: 44px; max-height: 120px; line-height: 1.5; outline: none; transition: border-color 0.15s; }
+    textarea:focus { border-color: #3b82f6; }
+    textarea:disabled { background: #f4f3ef; color: #999; }
+    .btn { padding: 0.6rem 1.1rem; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s; white-space: nowrap; }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-send { background: #1d4ed8; color: #fff; }
+    .btn-send:hover:not(:disabled) { background: #1e40af; }
+    .btn-end { background: #f4f3ef; color: #555; border: 1px solid #d1d5db; }
+    .btn-end:hover:not(:disabled) { background: #e0ddd6; }
+    .feedback-card { background: #fff; border: 1px solid #e0ddd6; border-radius: 12px; padding: 1.5rem 2rem; display: none; }
+    .feedback-card h2 { font-size: 16px; font-weight: 600; color: #111; margin-bottom: 1rem; }
+    .feedback-section { margin-bottom: 1.25rem; }
+    .feedback-section h3 { font-size: 13px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+    .feedback-section p { font-size: 14px; line-height: 1.75; color: #2a2a2a; }
+    .score-row { display: flex; gap: 1rem; margin-bottom: 1.25rem; }
+    .score-box { flex: 1; background: #f8f7f4; border-radius: 8px; padding: 0.85rem 1rem; text-align: center; border: 1px solid #e0ddd6; }
+    .score-label { font-size: 11px; color: #888; margin-bottom: 4px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .score-val { font-size: 22px; font-weight: 700; color: #1d4ed8; }
+    .evidence-note { margin-top: 1.25rem; padding: 0.85rem 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 13px; color: #065f46; line-height: 1.6; }
+    .btn-print { margin-top: 1rem; background: #059669; color: #fff; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; }
+    .btn-print:hover { background: #047857; }
+    @media (max-width: 540px) { .roles-row { grid-template-columns: 1fr; } .score-row { flex-direction: column; } }
+    @media print { body { background: white; padding: 0; } .chat-card, .scenario-card, .roles-row, .header-card { display: none; } .feedback-card { display: block !important; border: none; padding: 0; } .btn-print { display: none; } }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header-card">
+    <div class="tag tag-blue">92 Programme</div>
+    <h1>Mock Client Meeting</h1>
+    <p class="meta">Festival Day &nbsp;&nbsp; Level 6 Professionalism Activity &nbsp;&nbsp; Individual</p>
+  </div>
+
+  <div class="scenario-card">
+    <p class="section-label">Your scenario</p>
+    <p class="scenario-text">You are a junior developer at a small software agency. Your client, Northgate Housing Association, has asked for a progress update on a tenant portal app that is two weeks behind schedule due to an unexpected API integration issue. The client is not technical. Your job is to run a professional update meeting, manage expectations, and agree next steps.</p>
+    <p class="note">You do not need to know the technical solution. The focus is on how you communicate professionally under pressure.</p>
+  </div>
+
+  <div class="roles-row">
+    <div class="role-card">
+      <div class="tag tag-blue">You</div>
+      <p class="role-title">Junior developer</p>
+      <p class="role-desc">Run the meeting. Give a clear update, explain the delay professionally, and propose a revised timeline.</p>
+    </div>
+    <div class="role-card">
+      <div class="tag tag-red">Simulated client</div>
+      <p class="role-title">Margaret Norris</p>
+      <p class="role-desc">Operations Manager at Northgate Housing Association. Frustrated about the delay and will ask tough questions.</p>
+    </div>
+  </div>
+
+  <div class="chat-card">
+    <div class="chat-topbar">
+      <div class="chat-topbar-left">
+        <div class="avatar">MN</div>
+        <div>
+          <p class="chat-name">Margaret Norris</p>
+          <p class="chat-role">Operations Manager, Northgate Housing Association</p>
+        </div>
+      </div>
+      <div><span class="status-dot"></span><span class="status-text">In meeting</span></div>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="msg client">
+        <p class="msg-label">Margaret (client)</p>
+        <div class="bubble">Right, I have about 15 minutes. I hope you have some good news for me because frankly I am very concerned about where this project is heading. Over to you.</div>
+      </div>
+    </div>
+
+    <div class="typing" id="typing">Margaret is typing...</div>
+
+    <div class="input-row">
+      <textarea id="user-input" placeholder="Type your response as the developer..." rows="2"></textarea>
+      <button class="btn btn-send" id="send-btn" onclick="sendMessage()">Send</button>
+      <button class="btn btn-end" id="end-btn" onclick="endMeeting()">End meeting</button>
+    </div>
+  </div>
+
+  <div class="feedback-card" id="feedback-card">
+    <div class="tag tag-green">Professional Feedback</div>
+    <h2>Your meeting performance summary</h2>
+    <div class="score-row" id="score-row"></div>
+    <div id="feedback-sections"></div>
+    <div class="evidence-note">Take a screenshot or print this page to use as evidence for Block 5 of your 92 Programme Learning Journal.</div>
+    <button class="btn-print" onclick="window.print()">Print or save as PDF</button>
+  </div>
+
+</div>
+
+<script>
+  const margaretResponses = {
+    apology: [
+      "I appreciate the apology but words are not going to reassure my board. What specifically went wrong and why did it take so long to flag it to us?",
+      "Thank you for saying that, but our tenants are waiting on this portal. An apology does not give us a new go-live date. What is the plan?"
+    ],
+    timeline: [
+      "Two weeks. That is on top of the two we have already lost. What guarantee do I have that this new date is realistic and not just something to keep me quiet?",
+      "So you are telling me we are now looking at a delay of at least two more weeks. How did your team not see this coming earlier?"
+    ],
+    technical: [
+      "I am not a technical person and I should not need to be. Can you explain what that actually means for our project in plain language?",
+      "I do not understand what that means. What I need to know is how it affects our tenants and our go-live date. Can you translate that for me?"
+    ],
+    solution: [
+      "That sounds reasonable on paper but I have heard reassurances before. Who specifically is responsible for making sure this does not slip again?",
+      "Okay. But what happens if that solution does not work? Do you have a backup plan or are we just hoping for the best?"
+    ],
+    cost: [
+      "Will this delay affect our contract costs? Because I have a budget to manage and I will need to explain any changes to our finance team.",
+      "Are there any financial implications we should be aware of? Our board will want to know if this changes anything contractually."
+    ],
+    vague: [
+      "I am going to need more detail than that. What does that actually look like in practice?",
+      "That is quite vague. Can you be more specific so I can report back to my board accurately?",
+      "I am not sure I follow. Can you give me a clearer picture of exactly where things stand?"
+    ],
+    nextSteps: [
+      "Fine. But I want that in writing. Can you send me a formal update by end of day confirming everything we have discussed?",
+      "That is a start. Who will be my main point of contact going forward and how often will you update me?"
+    ],
+    short: [
+      "Is that it? I was expecting a bit more detail given how serious this situation is.",
+      "Right. And? I need you to walk me through this properly, not just give me one line.",
+      "I will need more than that to take back to my board. Can you expand on that?"
+    ],
+    professional: [
+      "I can see you have thought about this. But I still need to understand what went wrong in the first place before I can feel confident moving forward.",
+      "That is helpful, thank you. Now, what steps are you taking to make sure this kind of delay does not happen again on this project?"
+    ],
+    closing: [
+      "Alright. I will hold you to that. Send me a written summary and I expect to hear from you by the end of the week with a proper update.",
+      "Very well. I am not happy about the situation but I appreciate you being straightforward. Let us hope the next update is better news."
+    ],
+    default: [
+      "I see. And what does that mean for the delivery date? That is my main concern right now.",
+      "Right. So where does that leave us in terms of the timeline and what my tenants can expect?",
+      "I hear what you are saying. But from my perspective the key question is: when will this be fixed and what can I tell my board?",
+      "That is all well and good but I need to know who is accountable here and what the concrete next steps are.",
+      "And how confident are you in that? Because I have to be honest, my trust in the project management here has taken a knock."
+    ]
+  };
+
+  let turnCount = 0;
+  let meetingEnded = false;
+  let userMessages = [];
+  let margaretTurn = 0;
+
+  function getMargaret(userText) {
+    const t = userText.toLowerCase();
+    turnCount++;
+    let pool;
+
+    if (t.length < 40) pool = margaretResponses.short;
+    else if (/(sorry|apologi|apologise|apologize|regret)/.test(t)) pool = margaretResponses.apology;
+    else if (/(week|day|date|deadline|deliver|schedule|timeline|by when|when will)/.test(t)) pool = margaretResponses.timeline;
+    else if (/(api|integration|code|server|database|bug|technical|system|software|develop)/.test(t)) pool = margaretResponses.technical;
+    else if (/(fix|solution|resolve|address|plan|steps|going to|will do|working on)/.test(t)) pool = margaretResponses.solution;
+    else if (/(cost|budget|contract|payment|invoice|charge|fee)/.test(t)) pool = margaretResponses.cost;
+    else if (/(next step|action|going forward|communicate|update you|keep you|contact)/.test(t)) pool = margaretResponses.nextSteps;
+    else if (/(understand|clear|transparent|honest|straightforward|professional|committed)/.test(t)) pool = margaretResponses.professional;
+    else if (turnCount >= 6) pool = margaretResponses.closing;
+    else pool = margaretResponses.default;
+
+    const index = margaretTurn % pool.length;
+    margaretTurn++;
+    return pool[index];
+  }
+
+  function appendMessage(role, text) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "msg " + (role === "user" ? "user" : "client");
+    const label = document.createElement("p");
+    label.className = "msg-label";
+    label.textContent = role === "user" ? "You (developer)" : "Margaret (client)";
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;
+    wrapper.appendChild(label);
+    wrapper.appendChild(bubble);
+    document.getElementById("messages").appendChild(wrapper);
+    document.getElementById("messages").scrollTop = 99999;
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("user-input");
+    const text = input.value.trim();
+    if (!text || meetingEnded) return;
+
+    appendMessage("user", text);
+    userMessages.push(text);
+    input.value = "";
+    input.disabled = true;
+    document.getElementById("send-btn").disabled = true;
+    document.getElementById("end-btn").disabled = true;
+    document.getElementById("typing").style.display = "block";
+
+    setTimeout(() => {
+      document.getElementById("typing").style.display = "none";
+      const reply = getMargaret(text);
+      appendMessage("client", reply);
+      input.disabled = false;
+      document.getElementById("send-btn").disabled = false;
+      document.getElementById("end-btn").disabled = false;
+      input.focus();
+    }, 1200 + Math.random() * 800);
+  }
+
+  document.getElementById("user-input").addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  function generateFeedback() {
+    const all = userMessages.join(" ").toLowerCase();
+    const wordCount = userMessages.reduce((a, b) => a + b.split(" ").length, 0);
+    const avgLength = wordCount / Math.max(userMessages.length, 1);
+
+    let communication = 0;
+    let clarity = 0;
+    let professionalism = 0;
+
+    if (/(sorry|apologi)/.test(all)) communication += 15;
+    if (/(timeline|date|week|deadline|deliver)/.test(all)) communication += 20;
+    if (/(solution|fix|plan|resolve|steps|working on)/.test(all)) communication += 20;
+    if (/(update|communicate|contact|keep you informed)/.test(all)) communication += 15;
+    if (userMessages.length >= 4) communication += 20;
+    communication = Math.min(communication + 10, 100);
+
+    if (avgLength > 20) clarity += 30;
+    else if (avgLength > 10) clarity += 15;
+    if (/(because|therefore|however|firstly|secondly|to summarise)/.test(all)) clarity += 20;
+    if (/(specifically|in particular|for example|to clarify)/.test(all)) clarity += 20;
+    if (userMessages.length >= 3) clarity += 15;
+    clarity = Math.min(clarity + 15, 100);
+
+    if (/(thank you|appreciate|understand your concern|i can see)/.test(all)) professionalism += 25;
+    if (!/(dunno|idk|gonna|wanna|yeah|nope|lol)/.test(all)) professionalism += 20;
+    if (/(we will|we can|i will ensure|i can confirm)/.test(all)) professionalism += 25;
+    if (avgLength > 15) professionalism += 15;
+    professionalism = Math.min(professionalism + 15, 100);
+
+    const overall = Math.round((communication + clarity + professionalism) / 3);
+
+    const strengths = [];
+    const improvements = [];
+
+    if (/(solution|fix|plan|resolve)/.test(all)) strengths.push("You offered a solution rather than just explaining the problem, which is a key professional skill in client communication.");
+    if (/(timeline|date|week|deadline)/.test(all)) strengths.push("You addressed the timeline directly, which is what the client needed most from this meeting.");
+    if (/(sorry|apologi)/.test(all)) strengths.push("You acknowledged the situation with an apology which shows accountability and emotional intelligence.");
+    if (userMessages.length >= 5) strengths.push("You maintained the conversation across multiple turns, showing you can sustain a professional dialogue under pressure.");
+    if (avgLength > 20) strengths.push("Your responses were detailed and considered, suggesting you were thinking carefully about what the client needed to hear.");
+    if (strengths.length === 0) strengths.push("You engaged with the activity and attempted to respond to a challenging client scenario, which is the starting point for developing professional communication skills.");
+
+    if (!/(timeline|date|week|deadline)/.test(all)) improvements.push("Try to address the revised timeline more explicitly. In a real client meeting, the client's main need is a clear new delivery date.");
+    if (!/(solution|fix|plan)/.test(all)) improvements.push("Consider proposing a concrete solution or next steps. Clients need to leave the meeting knowing what happens next, not just what went wrong.");
+    if (avgLength < 15) improvements.push("Your responses could be more detailed. Short answers can come across as dismissive in a professional client meeting.");
+    if (!/(thank you|appreciate|understand)/.test(all)) improvements.push("Acknowledging the client's frustration before responding can help de-escalate tension and shows professional empathy.");
+    if (/(api|code|server|database|technical)/.test(all)) improvements.push("You used some technical language which Margaret flagged she did not understand. In a real meeting, always translate technical issues into plain language for non-technical clients.");
+
+    return { communication, clarity, professionalism, overall, strengths: strengths.slice(0,3), improvements: improvements.slice(0,3) };
+  }
+
+  function endMeeting() {
+    if (meetingEnded) return;
+    meetingEnded = true;
+
+    document.getElementById("user-input").disabled = true;
+    document.getElementById("send-btn").disabled = true;
+    document.getElementById("end-btn").disabled = true;
+
+    if (userMessages.length === 0) {
+      alert("Please send at least one message before ending the meeting.");
+      meetingEnded = false;
+      document.getElementById("user-input").disabled = false;
+      document.getElementById("send-btn").disabled = false;
+      document.getElementById("end-btn").disabled = false;
+      return;
+    }
+
+    appendMessage("client", "Right, I think that is all we have time for today. I expect a written summary by end of day. Thank you.");
+
+    setTimeout(() => {
+      const fb = generateFeedback();
+
+      document.getElementById("score-row").innerHTML = `
+        <div class="score-box"><div class="score-label">Communication</div><div class="score-val">${fb.communication}%</div></div>
+        <div class="score-box"><div class="score-label">Clarity</div><div class="score-val">${fb.clarity}%</div></div>
+        <div class="score-box"><div class="score-label">Professionalism</div><div class="score-val">${fb.professionalism}%</div></div>
+        <div class="score-box"><div class="score-label">Overall</div><div class="score-val">${fb.overall}%</div></div>
+      `;
+
+      document.getElementById("feedback-sections").innerHTML = `
+        <div class="feedback-section">
+          <h3>What you did well</h3>
+          ${fb.strengths.map(s => `<p style="margin-bottom:0.5rem;">&#10003; &nbsp;${s}</p>`).join("")}
+        </div>
+        <div class="feedback-section">
+          <h3>Areas to improve</h3>
+          ${fb.improvements.map(i => `<p style="margin-bottom:0.5rem;">&#9651; &nbsp;${i}</p>`).join("")}
+        </div>
+        <div class="feedback-section">
+          <h3>Reflection prompt for your learning journal</h3>
+          <p>Based on this meeting, identify one professional communication skill you want to develop before entering a graduate role. How does this connect to a contemporary issue in the tech industry such as client trust, transparent delivery, or Agile communication?</p>
+        </div>
+      `;
+
+      const feedbackCard = document.getElementById("feedback-card");
+      feedbackCard.style.display = "block";
+      feedbackCard.scrollIntoView({ behavior: "smooth" });
+    }, 800);
+  }
+</script>
+</body>
+</html>
